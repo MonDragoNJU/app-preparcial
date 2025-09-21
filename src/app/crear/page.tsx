@@ -1,33 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import Image from "next/image";
 
-interface FormData {
+interface Author {
+  id: number;
   name: string;
   birthDate: string;
   description: string;
   image: string;
 }
 
-interface Author extends FormData {
-  id: number;
-}
-
+//Se crean los manejadores de estado como lo dice en el enunciado
 export default function CrearUsuario() {
   const [autores, setAutores] = useState<Author[]>([]);
+  const [name, setName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<FormData>();
-
-  const crearAutor = async (nuevoAutor: FormData): Promise<Author> => {
+  const crearAutor = async (nuevoAutor: Omit<Author, "id">): Promise<Author> => {
     const response = await fetch("http://127.0.0.1:8080/api/authors", {
-      method: "POST",
+      method: "POST", //Esto porque tenemos que publicar el autor que acabamos de crear
       headers: {
         "Content-Type": "application/json",
       },
@@ -42,14 +35,23 @@ export default function CrearUsuario() {
     return data;
   };
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     try {
-      const autorCreado = await crearAutor(data);
+      const autorCreado = await crearAutor({
+        name,
+        birthDate,
+        description,
+        image,
+      });
       setAutores([...autores, autorCreado]);
-      reset();
+      setName("");
+      setBirthDate("");
+      setDescription("");
+      setImage("");
     } catch (err) {
       console.error(err);
-      alert("Error al crear autor");
     }
   };
 
@@ -57,54 +59,48 @@ export default function CrearUsuario() {
     <div className="p-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Crear Usuario</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-medium">Nombre</label>
           <input
             type="text"
-            {...register("name", { required: "El nombre es obligatorio" })}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
             className="w-full border p-2 rounded"
           />
-          {errors.name && (
-            <span className="text-red-500">{errors.name.message}</span>
-          )}
         </div>
 
         <div>
           <label className="block font-medium">Fecha de Nacimiento</label>
           <input
             type="date"
-            {...register("birthDate", { required: "La fecha es obligatoria" })}
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            required
             className="w-full border p-2 rounded"
           />
-          {errors.birthDate && (
-            <span className="text-red-500">{errors.birthDate.message}</span>
-          )}
         </div>
 
         <div>
           <label className="block font-medium">Descripción</label>
           <textarea
-            {...register("description", {
-              required: "La descripción es obligatoria",
-            })}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
             className="w-full border p-2 rounded"
           />
-          {errors.description && (
-            <span className="text-red-500">{errors.description.message}</span>
-          )}
         </div>
 
         <div>
           <label className="block font-medium">URL de Imagen</label>
           <input
             type="text"
-            {...register("image", { required: "La imagen es obligatoria" })}
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            required
             className="w-full border p-2 rounded"
           />
-          {errors.image && (
-            <span className="text-red-500">{errors.image.message}</span>
-          )}
         </div>
 
         <button
@@ -114,30 +110,6 @@ export default function CrearUsuario() {
           Crear Usuario
         </button>
       </form>
-
-      <h2 className="text-xl font-semibold mt-6">Autores</h2>
-      <ul className="mt-2 space-y-2">
-        {autores.map((autor) => (
-          <li
-            key={autor.id}
-            className="border p-3 rounded flex items-center space-x-3"
-          >
-            <Image
-              src={autor.image}
-              alt={autor.name}
-              width={48}
-              height={48}
-              className="rounded-full object-cover"
-              unoptimized
-            />
-            <div>
-              <p className="font-bold">{autor.name}</p>
-              <p className="text-sm text-gray-600">{autor.birthDate}</p>
-              <p className="text-sm">{autor.description}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
