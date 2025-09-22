@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
+//Tipado estricto de los datos que esperamos recibir
 type Book = {
   id: number;
   name: string;
@@ -19,8 +20,8 @@ type Author = {
 };
 
 export default function AuthorsPage() {
-  const [authors, setAuthors] = useState<Author[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [authors, setAuthors] = useState<Author[]>([]); //Necesito el estado para guardar los autores
+  const [loading, setLoading] = useState<boolean>(true); //Aun no se si mi API va a responder bien, entonces pongo un estado de carga
   const [error, setError] = useState<string | null>(null);
 
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
@@ -103,7 +104,7 @@ export default function AuthorsPage() {
   };
 
   if (loading) {
-    return <div className="p-6">Cargando autores...</div>;
+    return <div className="p-6">Cargando autores</div>;
   }
   if (error) {
     return <div className="p-6 text-red-500">Error: {error}</div>;
@@ -126,7 +127,7 @@ export default function AuthorsPage() {
               type="text"
               value={editingAuthor.name}
               onChange={(e) =>
-                setEditingAuthor({ ...editingAuthor, name: e.target.value })
+                setEditingAuthor({ ...editingAuthor, name: e.target.value }) //Spreadoperator porque no quiero perder los demas datos del autor
               }
               className="w-full border p-2 rounded"
             />
@@ -206,10 +207,8 @@ export default function AuthorsPage() {
                   className="rounded-full object-cover"
                   unoptimized
                 />
-                <div>
                   <h2 className="text-lg font-semibold">{author.name}</h2>
                   <p className="text-sm text-gray-500">{author.birthDate}</p>
-                </div>
               </div>
 
               <p className="text-sm text-gray-700 mt-3">{author.description}</p>
@@ -218,7 +217,7 @@ export default function AuthorsPage() {
                 <div className="mt-3">
                   <h3 className="font-medium text-sm mb-2">Libros:</h3>
                   <div className="flex flex-wrap gap-3">
-                    {author.books.slice(0, 3).map((book) => (
+                    {author.books.map((book) => (
                       <div
                         key={book.id}
                         className="flex flex-col items-center w-24"

@@ -93,7 +93,7 @@ export default function CrearUsuario() {
         </div>
 
         <div>
-          <label className="block font-medium">URL de Imagen</label>
+          <label className="block font-medium">URL de la imagen</label>
           <input
             type="text"
             value={image}
